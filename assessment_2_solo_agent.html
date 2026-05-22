@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Solo Agent Business Diagnostic</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#f5f3ef;--surface:#fff;--navy:#172135;--navy2:#223350;
+  --rust:#b94a2c;--rust-l:#d4633e;--gold:#c59a3c;--gold-l:#e0b84e;
+  --sage:#3d6452;--border:#ddd8d0;--muted:#7a7063;--text:#1e2530;
+}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+.topbar{background:var(--navy);padding:0 40px;display:flex;align-items:center;justify-content:space-between;height:54px;position:sticky;top:0;z-index:50;}
+.topbar-logo{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:700;color:#fff;}
+.topbar-logo span{color:var(--gold);}
+.topbar-r{font-size:10px;color:rgba(255,255,255,.4);letter-spacing:1.5px;text-transform:uppercase;}
+.hero{background:linear-gradient(140deg,var(--navy) 0%,var(--navy2) 100%);padding:52px 40px 44px;position:relative;overflow:hidden;}
+.hero::after{content:'';position:absolute;bottom:-80px;right:-80px;width:340px;height:340px;border-radius:50%;border:1px solid rgba(197,154,60,.2);pointer-events:none;}
+.hero-eye{font-size:10px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:14px;}
+.hero h1{font-family:'Cormorant Garamond',serif;font-size:clamp(28px,4vw,50px);font-weight:700;color:#fff;line-height:1.1;max-width:640px;margin-bottom:14px;}
+.hero h1 em{color:var(--gold);font-style:normal;}
+.hero-sub{color:rgba(255,255,255,.58);font-size:13.5px;line-height:1.85;max-width:540px;margin-bottom:24px;}
+.hero-pills{display:flex;flex-wrap:wrap;gap:8px;}
+.hero-pill{background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.18);border-radius:99px;padding:5px 13px;font-size:11px;font-weight:500;color:rgba(255,255,255,.72);}
+.prog-wrap{background:var(--navy2);padding:14px 40px 18px;border-bottom:1px solid rgba(255,255,255,.05);}
+.prog-meta{display:flex;justify-content:space-between;font-size:11px;color:rgba(255,255,255,.4);margin-bottom:7px;}
+.prog-track{height:5px;background:rgba(255,255,255,.1);border-radius:3px;overflow:hidden;}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-l));border-radius:3px;transition:width .5s ease;width:0%;}
+.nav-tabs{background:var(--surface);border-bottom:1px solid var(--border);padding:0 40px;display:flex;overflow-x:auto;position:sticky;top:54px;z-index:40;box-shadow:0 2px 8px rgba(0,0,0,.05);}
+.nav-tab{padding:14px 17px;font-size:11.5px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;transition:all .18s;user-select:none;display:flex;align-items:center;gap:6px;}
+.nav-tab:hover{color:var(--navy);}
+.nav-tab.active{color:var(--navy);border-bottom-color:var(--rust);}
+.tab-dot{display:inline-flex;align-items:center;justify-content:center;width:17px;height:17px;background:var(--border);border-radius:50%;font-size:9px;transition:background .2s;flex-shrink:0;}
+.nav-tab.active .tab-dot,.nav-tab.done .tab-dot{background:var(--rust);color:#fff;}
+.nav-tab.done{color:var(--text);}
+.page{display:none;}
+.page.active{display:block;}
+.sw{max-width:820px;margin:0 auto;padding:44px 40px 110px;}
+.s-intro{margin-bottom:32px;padding-bottom:26px;border-bottom:1px solid var(--border);}
+.s-kicker{font-size:9.5px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:var(--rust);margin-bottom:9px;}
+.s-intro h2{font-family:'Cormorant Garamond',serif;font-size:clamp(20px,2.8vw,30px);font-weight:700;color:var(--navy);line-height:1.2;margin-bottom:9px;}
+.s-intro p{font-size:13.5px;color:var(--muted);line-height:1.82;max-width:600px;}
+.callout{background:#fffcf5;border-left:3px solid var(--gold);padding:13px 17px;border-radius:0 8px 8px 0;margin-bottom:24px;font-size:12.5px;color:#4a5568;line-height:1.72;}
+.callout.red{background:#fff8f7;border-left-color:var(--rust);}
+.callout.sage{background:#f4faf7;border-left-color:var(--sage);}
+.q-card{background:var(--surface);border:1px solid var(--border);border-radius:11px;margin-bottom:15px;overflow:hidden;transition:box-shadow .2s,border-color .2s;}
+.q-card:hover{box-shadow:0 4px 18px rgba(0,0,0,.055);}
+.q-card.answered{border-color:rgba(197,154,60,.42);}
+.q-head{padding:16px 20px 0;display:flex;gap:13px;align-items:flex-start;}
+.q-badge{min-width:25px;height:25px;border-radius:6px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:700;color:var(--muted);flex-shrink:0;margin-top:2px;}
+.answered .q-badge{background:var(--gold);color:#fff;}
+.q-label{font-size:13.5px;font-weight:500;color:var(--text);line-height:1.6;flex:1;}
+.q-tag{font-size:9.5px;font-weight:600;letter-spacing:.5px;padding:2px 7px;border-radius:4px;margin-left:8px;white-space:nowrap;align-self:center;}
+.tl{background:#e8f0fb;color:#2a5298;}.to{background:#fdecea;color:#b94a2c;}
+.ta{background:#fef9ec;color:#8a6500;}.tt{background:#edf7f2;color:#2d6b4f;}
+.tf{background:#f2eefb;color:#5a3e8a;}
+.q-body{padding:12px 20px 18px 58px;}
+.q-hint{font-size:11.5px;color:var(--muted);font-style:italic;margin-bottom:9px;line-height:1.6;}
+textarea{width:100%;font-family:'Inter',sans-serif;font-size:13px;border:1.5px solid var(--border);border-radius:8px;padding:10px 13px;background:var(--bg);color:var(--text);outline:none;resize:vertical;min-height:72px;transition:border-color .2s,background .2s;line-height:1.6;}
+textarea:focus{border-color:var(--gold);background:#fff;}
+.radio-group,.check-group{display:flex;flex-wrap:wrap;gap:7px;}
+.radio-group label,.check-group label{display:inline-flex;align-items:center;gap:6px;border:1.5px solid var(--border);border-radius:8px;padding:7px 12px;font-size:12px;font-weight:500;cursor:pointer;transition:all .18s;background:var(--bg);color:var(--text);line-height:1.3;}
+.radio-group label:hover,.check-group label:hover{border-color:var(--gold);background:#fffcf5;}
+.radio-group input,.check-group input{accent-color:var(--rust);}
+.slider-wrap{display:flex;align-items:center;gap:12px;}
+input[type=range]{flex:1;accent-color:var(--rust);height:4px;}
+.slider-val{font-size:16px;font-weight:700;color:var(--rust);min-width:32px;text-align:center;}
+.scale-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:5px;}
+.matrix-scroll{overflow-x:auto;}
+.matrix-table{width:100%;border-collapse:collapse;font-size:12px;min-width:560px;}
+.matrix-table th{background:var(--navy);color:rgba(255,255,255,.82);padding:9px 11px;text-align:left;font-weight:600;font-size:10.5px;letter-spacing:.5px;}
+.matrix-table td{border-bottom:1px solid var(--border);padding:7px 9px;vertical-align:middle;}
+.matrix-table tr:hover td{background:#fdf9f3;}
+.matrix-table select,.matrix-table input[type=text]{width:100%;font-family:'Inter',sans-serif;font-size:11px;border:1px solid var(--border);border-radius:5px;padding:5px 7px;background:var(--bg);color:var(--text);outline:none;}
+.matrix-table select:focus,.matrix-table input[type=text]:focus{border-color:var(--gold);background:#fff;}
+.task-label{font-weight:500;color:var(--navy);font-size:11.5px;}
+.pain-selector{display:flex;gap:3px;}
+.pain-dot{width:21px;height:21px;border-radius:50%;border:2px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:9.5px;font-weight:700;transition:all .18s;background:var(--bg);color:var(--muted);}
+.pain-dot:hover{border-color:var(--rust);}
+.pain-dot.sel{border-color:var(--rust);background:var(--rust);color:#fff;}
+/* RESULTS */
+.scores-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px;}
+@media(max-width:580px){.scores-grid{grid-template-columns:1fr 1fr;}}
+.score-card{background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:18px;text-align:center;}
+.score-card h4{font-family:'Cormorant Garamond',serif;font-size:14px;font-weight:700;color:var(--navy);margin-bottom:6px;}
+.score-num{font-size:28px;font-weight:700;line-height:1;}
+.score-sub{font-size:10px;color:var(--muted);margin-top:4px;}
+.score-bar{height:4px;background:var(--bg);border-radius:3px;margin-top:10px;overflow:hidden;}
+.score-bar-fill{height:100%;border-radius:3px;}
+.bn-card{background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:19px 21px;margin-bottom:12px;display:flex;gap:14px;}
+.bn-card.high{border-left:4px solid var(--rust);}
+.bn-card.med{border-left:4px solid var(--gold);}
+.bn-icon{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.bn-icon.hire{background:#e8f0fb;}.bn-icon.software{background:#edf7f2;}.bn-icon.process{background:#fef9ec;}
+.bn-body h4{font-size:13.5px;font-weight:600;color:var(--navy);margin-bottom:4px;}
+.bn-body p{font-size:12px;color:var(--muted);line-height:1.72;}
+.bn-tags{display:flex;gap:6px;margin-top:7px;flex-wrap:wrap;}
+.bn-tag{font-size:9.5px;font-weight:600;letter-spacing:.4px;padding:2px 8px;border-radius:4px;}
+.bt-hire{background:#e8f0fb;color:#2a5298;}.bt-soft{background:#edf7f2;color:#2d6b4f;}.bt-proc{background:#fef9ec;color:#8a6500;}.bt-urg{background:#fdecea;color:#b94a2c;}
+.action-table{width:100%;border-collapse:collapse;font-size:12.5px;}
+.action-table th{background:var(--navy);color:rgba(255,255,255,.78);padding:10px 13px;text-align:left;font-size:10.5px;font-weight:600;letter-spacing:.5px;}
+.action-table td{padding:11px 13px;border-bottom:1px solid var(--border);vertical-align:top;}
+.action-table tr:hover td{background:var(--bg);}
+.p-badge{font-size:9.5px;font-weight:700;letter-spacing:.4px;padding:2px 8px;border-radius:4px;}
+.pn{background:#fdecea;color:#b94a2c;}.ps{background:#fef9ec;color:#8a6500;}.pl{background:#edf7f2;color:#2d6b4f;}
+.action-table input[type=text]{font-family:'Inter',sans-serif;font-size:11.5px;border:1px solid var(--border);border-radius:6px;padding:5px 9px;width:100%;background:var(--bg);outline:none;}
+.action-table input[type=text]:focus{border-color:var(--gold);background:#fff;}
+.sticky-footer{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--border);padding:12px 40px;display:flex;align-items:center;justify-content:space-between;z-index:30;box-shadow:0 -4px 18px rgba(0,0,0,.06);}
+.footer-info{font-size:12px;color:var(--muted);}
+.footer-info strong{color:var(--text);}
+.btn-grp{display:flex;gap:9px;}
+.btn{padding:9px 20px;border-radius:8px;font-family:'Inter',sans-serif;font-size:12.5px;font-weight:600;border:none;cursor:pointer;transition:all .18s;}
+.btn-p{background:var(--rust);color:#fff;}.btn-p:hover{background:var(--rust-l);transform:translateY(-1px);box-shadow:0 4px 12px rgba(185,74,44,.28);}
+.btn-s{background:transparent;border:2px solid var(--border);color:var(--muted);}.btn-s:hover{border-color:var(--navy);color:var(--navy);}
+.btn-g{background:transparent;color:var(--muted);font-size:12px;padding:9px 12px;}.btn-g:hover{color:var(--text);}
+.divider{height:1px;background:var(--border);margin:26px 0;}
+@media print{.topbar,.prog-wrap,.nav-tabs,.sticky-footer{display:none!important;}.page{display:block!important;}.sw{padding:20px;}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-logo">Solo Agent<span> Diagnostic</span></div>
+  <div class="topbar-r">Full Business Assessment</div>
+</div>
+<div class="hero">
+  <div class="hero-eye">Solo Agent — Full Diagnostic</div>
+  <h1>Diagnose Your Business.<br><em>Build What's Missing.</em></h1>
+  <div class="hero-sub">This assessment maps every bottleneck in your real estate business across six areas. The output isn't a score — it's a specific, prioritized plan telling you what to fix first and whether the fix is a hire, a tool, or a structured process.</div>
+  <div class="hero-pills">
+    <span class="hero-pill">&#127919; Lead Generation</span>
+    <span class="hero-pill">&#9881; Pipeline &amp; Transactions</span>
+    <span class="hero-pill">&#128203; Admin &amp; Bookkeeping</span>
+    <span class="hero-pill">&#128187; Technology</span>
+    <span class="hero-pill">&#128176; Finances</span>
+    <span class="hero-pill">&#128101; Delegation Readiness</span>
+  </div>
+</div>
+<div class="prog-wrap">
+  <div class="prog-meta"><span id="progLabel">Begin Section 01</span><span id="progPct">0%</span></div>
+  <div class="prog-track"><div class="prog-fill" id="progFill"></div></div>
+</div>
+<div class="nav-tabs">
+  <div class="nav-tab active" onclick="goTo(0)">01 Lead Gen <span class="tab-dot" id="td0">&#9679;</span></div>
+  <div class="nav-tab" onclick="goTo(1)">02 Pipeline <span class="tab-dot" id="td1">&#9679;</span></div>
+  <div class="nav-tab" onclick="goTo(2)">03 Admin <span class="tab-dot" id="td2">&#9679;</span></div>
+  <div class="nav-tab" onclick="goTo(3)">04 Technology <span class="tab-dot" id="td3">&#9679;</span></div>
+  <div class="nav-tab" onclick="goTo(4)">05 Finances <span class="tab-dot" id="td4">&#9679;</span></div>
+  <div class="nav-tab" onclick="goTo(5)">06 Delegation <span class="tab-dot" id="td5">&#9679;</span></div>
+  <div class="nav-tab" onclick="goTo(6)">&#127942; Results <span class="tab-dot" id="td6">&#9679;</span></div>
+</div>
+
+<!-- PAGE 0: LEAD GEN -->
+<div class="page active" id="page0"><div class="sw">
+  <div class="s-intro">
+    <div class="s-kicker">Section 01 — Lead Generation</div>
+    <h2>Where Does Your Business Come From — and Is It Reliable?</h2>
+    <p>Most agents know they need more leads but haven't diagnosed <em>why</em> the pipeline is inconsistent. These questions reveal whether the problem is volume, conversion, follow-up speed, or database neglect.</p>
+  </div>
+  <div class="callout">&#128161; Answer based on what is <strong>actually happening right now</strong>, not what you intend or plan. Honest gaps are the most valuable data this assessment surfaces.</div>
+  <div id="ql0"></div>
+</div></div>
+
+<!-- PAGE 1: PIPELINE -->
+<div class="page" id="page1"><div class="sw">
+  <div class="s-intro">
+    <div class="s-kicker">Section 02 — Pipeline &amp; Transaction Operations</div>
+    <h2>From Contract to Close: Where Does Your Process Actually Break Down?</h2>
+    <p>Operational friction costs agents deals they've already earned. This section maps your real process and identifies exactly where time is lost after you have a client.</p>
+  </div>
+  <div class="callout red">&#9888;&#65039; Think about an actual transaction from the last 30 days as you answer. Real failure modes — not your ideal process — are what matter here.</div>
+  <div id="ql1"></div>
+</div></div>
+
+<!-- PAGE 2: ADMIN -->
+<div class="page" id="page2"><div class="sw">
+  <div class="s-intro">
+    <div class="s-kicker">Section 03 — Administration, Bookkeeping &amp; Compliance</div>
+    <h2>Task Audit: What Are You Doing That Someone Else Should?</h2>
+    <p>Admin work is necessary but almost never the highest use of an agent's time. This section finds what to delegate first — and whether the fix is a hire, a tool, or a workflow change.</p>
+  </div>
+  <div class="callout">&#128203; Rate tasks on how much <strong>pain</strong> they cause you — not how important they are. High-pain, low-complexity tasks are prime outsourcing candidates regardless of how small they seem.</div>
+  <div class="q-card" style="margin-bottom:18px;">
+    <div class="q-head">
+      <div class="q-badge" style="width:auto;padding:3px 9px;border-radius:5px;font-size:10px;">Task Matrix</div>
+      <div class="q-label" style="padding-top:2px;">For each task below: note who does it, how often, rate the pain it causes you (1=minor to 5=costing you real time/money), and flag your outsource priority.</div>
+    </div>
+    <div class="q-body" style="padding-left:18px;">
+      <div class="matrix-scroll"><table class="matrix-table">
+        <thead><tr><th style="width:27%">Task</th><th style="width:16%">Who Does It</th><th style="width:13%">Frequency</th><th style="width:20%">Pain (1–5)</th><th style="width:16%">Priority</th></tr></thead>
+        <tbody id="matrixBody"></tbody>
+      </table></div>
+    </div>
+  </div>
+  <div id="ql2"></div>
+</div></div>
+
+<!-- PAGE 3: TECH -->
+<div class="page" id="page3"><div class="sw">
+  <div class="s-intro">
+    <div class="s-kicker">Section 04 — Technology &amp; Software</div>
+    <h2>Are Your Tools Working For You — or Just Costing You Money?</h2>
+    <p>Technology should reduce friction and multiply your time. But there's a critical distinction most agents miss: a <strong>compliance tool</strong> (stores documents, confirms filing) vs. a <strong>business management tool</strong> (tells you proactively what needs attention today). You likely need both — but may only have one.</p>
+  </div>
+  <div class="callout">&#128187; Audit what you have <em>before</em> considering what to add. Most agents find savings and capability gaps in the same 30-minute review.</div>
+  <div id="ql3"></div>
+</div></div>
+
+<!-- PAGE 4: FINANCES -->
+<div class="page" id="page4"><div class="sw">
+  <div class="s-intro">
+    <div class="s-kicker">Section 05 — Finances &amp; Overhead</div>
+    <h2>Do You Know Your Numbers Well Enough to Make Good Decisions?</h2>
+    <p>Most solo agents run on gut feel. Without knowing your monthly overhead, net per deal, and break-even transaction count, you cannot confidently decide when to hire, what to spend, or whether your current brokerage arrangement makes sense.</p>
+  </div>
+  <div class="callout">&#128200; Not knowing these numbers yet is extremely common. The goal here is to surface what you <em>should</em> know and don't — so you know exactly what to go calculate this week.</div>
+  <div id="ql4"></div>
+</div></div>
+
+<!-- PAGE 5: DELEGATION -->
+<div class="page" id="page5"><div class="sw">
+  <div class="s-intro">
+    <div class="s-kicker">Section 06 — Hiring &amp; Delegation Readiness</div>
+    <h2>What Kind of Help Do You Actually Need?</h2>
+    <p>Hiring before you're ready is expensive and often fails. Not hiring when you're ready caps your income. This section determines where you are on that spectrum — and whether the right answer is a VA, TC, buyer's agent, or something else entirely.</p>
+  </div>
+  <div class="callout red">&#128101; The most common mistake: hiring a buyer's agent when what's actually needed is an admin. These are completely different problems with completely different solutions.</div>
+  <div id="ql5"></div>
+</div></div>
+
+<!-- PAGE 6: RESULTS -->
+<div class="page" id="page6"><div class="sw">
+  <div class="s-intro">
+    <div class="s-kicker">Your Diagnostic Results</div>
+    <h2>Here Is What Your Business Is Telling You</h2>
+    <p>Each bottleneck below was flagged from a specific answer you gave. The fix type — Hire, Software, or Process — reflects what kind of intervention actually solves it.</p>
+  </div>
+  <div style="margin-bottom:24px;"><div class="s-kicker" style="margin-bottom:10px;">Section Completion</div><div class="scores-grid" id="scoresGrid"></div></div>
+  <div class="divider"></div>
+  <div style="margin-bottom:10px;"><div class="s-kicker" style="margin-bottom:10px;">Identified Bottlenecks &amp; Recommendations</div></div>
+  <div class="callout sage">&#128269; Items are ordered by impact — high priority first. Start there and work down. Don't try to fix everything at once.</div>
+  <div id="bnsWrap"></div>
+  <div class="divider"></div>
+  <div style="margin-bottom:10px;"><div class="s-kicker" style="margin-bottom:10px;">Your 90-Day Action Plan</div></div>
+  <div class="callout">Assign a target date to every action. "Not now" is a valid decision — blank means you haven't decided yet, which is different.</div>
+  <table class="action-table"><thead><tr><th>Action Item</th><th style="width:100px">Priority</th><th style="width:130px">Target Date</th></tr></thead><tbody id="actionBody"></tbody></table>
+  <div class="divider"></div>
+  <div style="padding:20px 22px;background:var(--surface);border:1px solid var(--border);border-radius:11px;">
+    <div class="s-kicker" style="margin-bottom:8px;">The Most Important Question</div>
+    <div style="font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;color:var(--navy);margin-bottom:12px;">If you could fix one operational problem in your business this quarter, what would it be?</div>
+    <textarea id="closingQ" placeholder="Be specific. Not 'more leads' — but 'I need a documented follow-up sequence so new leads don't go cold while I'm in showings.' The more specific, the more useful." oninput="recordA('cq',this.value)" style="min-height:86px;"></textarea>
+  </div>
+  <div style="margin-top:22px;text-align:center;">
+    <button class="btn btn-p" onclick="window.print()" style="margin-right:10px;">&#128438; Print / Save PDF</button>
+    <button class="btn btn-s" onclick="resetAll()">Start Over</button>
+  </div>
+</div></div>
+
+<div class="sticky-footer">
+  <div class="footer-info"><strong id="footAns">0</strong> of <strong id="footTot">0</strong> questions answered</div>
+  <div class="btn-grp">
+    <button class="btn btn-g" onclick="prevPage()">&#8592; Back</button>
+    <button class="btn btn-s" onclick="resetAll()">Reset</button>
+    <button class="btn btn-p" id="nextBtn" onclick="nextPage()">Next Section &#8594;</button>
+  </div>
+</div>
+
+<script>
+var PAGES=[
+ {questions:[
+  {id:'lg1',label:'How many inbound leads did you receive last month from all sources?',type:'radio',tag:'lead',score:{0:0,1:1,2:2,3:2,4:1},opts:['0–5','6–15','16–30','30+','I don\'t track this']},
+  {id:'lg2',label:'What are your active lead sources right now? (select all that apply)',type:'check',tag:'lead',opts:['Sphere / referrals','Zillow / portal leads','Social media organic','Paid social ads','Google PPC','Cold calling / prospecting','Door knocking','Open houses','Past client database','Brokerage leads','Other']},
+  {id:'lg3',label:'What percentage of new leads do you follow up with within 24 hours?',type:'radio',tag:'lead',score:{0:0,1:1,2:2,3:3,4:4},opts:['Under 25%','25–50%','50–75%','75–90%','Nearly all — it\'s systematic']},
+  {id:'lg4',label:'Do you have a documented follow-up sequence for new leads — specific steps, timing, and channels?',type:'radio',tag:'ops',score:{0:4,1:2,2:1,3:0},opts:['Yes — documented and followed consistently','I have a system but use it inconsistently','I respond when I can — no real sequence','No system at all']},
+  {id:'lg5',label:'What happens to a lead who says "not ready, check back in 6 months"?',type:'textarea',tag:'ops'},
+  {id:'lg6',label:'How many contacts in your database have had zero outreach from you in 90+ days?',type:'radio',tag:'lead',score:{0:4,1:3,2:1,3:0},opts:['Nearly none — I stay current','Some — maybe 10–25%','A lot — 25–50%','Most of them — my database is inactive']},
+  {id:'lg7',label:'Do you have a consistent past-client outreach program at defined intervals throughout the year?',type:'radio',tag:'ops',score:{0:4,1:3,2:1,3:0},opts:['Yes — automated or on a defined schedule','Yes — manually, but it\'s consistent','Occasionally — when I think of it','No — I rely on them to reach out']},
+  {id:'lg8',label:'What is your biggest obstacle to lead generation right now?',type:'radio',tag:'lead',opts:['Too many leads to follow up with','Not enough volume','Don\'t know which sources to invest in','Uncomfortable with outreach and prospecting','Leads come in but don\'t convert','No marketing budget','Haven\'t made it a priority']},
+  {id:'lg9',label:'How intentional and consistent is your lead generation activity week over week?',type:'scale',tag:'lead',low:'Reactive — I prospect when I have time',high:'Proactive daily system — rarely missed'},
+ ]},
+ {questions:[
+  {id:'po1',label:'How many active transactions are you managing right now?',type:'radio',tag:'ops',opts:['0','1–3','4–7','8–12','12+']},
+  {id:'po2',label:'How do you track transaction deadlines and tasks?',type:'radio',tag:'tech',score:{0:4,1:2,2:1,3:1,4:0},opts:['Dedicated software used consistently (Dotloop, SkySlope, Command, etc.)','Dedicated software used inconsistently','A spreadsheet or manual calendar','My TC manages this','In my head or on paper — no system']},
+  {id:'po3',label:'Which stage most often stalls, falls behind, or creates stress in your transactions?',type:'radio',tag:'ops',opts:['Getting the offer written and accepted','Inspection period negotiations','Appraisal contingencies','Loan processing / lender delays','Title search and closing prep','Managing client expectations throughout','All stages feel chaotic']},
+  {id:'po4',label:'Describe what "falling through the cracks" looks like in one of your transactions — what specifically gets missed?',type:'textarea',tag:'ops'},
+  {id:'po5',label:'Do you use a Transaction Coordinator?',type:'radio',tag:'ops',score:{0:4,1:3,2:0,3:2},opts:['Yes — TC handles all transactions start to finish','Yes — for some transactions','No — I handle all contract-to-close work myself','Brokerage handles compliance; I manage client side']},
+  {id:'po6',label:'How many hours per week do you spend on transaction management — paperwork, deadline tracking, lender/title calls?',type:'radio',tag:'ops',score:{0:4,1:3,2:1,3:0},opts:['Under 3 hours','3–7 hours','7–15 hours','15+ hours']},
+  {id:'po7',label:'Do lenders, title companies, or clients frequently contact you asking for documents or status updates you have to hunt down?',type:'radio',tag:'ops',score:{0:0,1:1,2:3,3:4},opts:['Yes, constantly — it\'s a real problem','Often — at least weekly','Occasionally','Rarely — my systems surface this proactively']},
+  {id:'po8',label:'Do you have a written checklist any assistant could follow independently for each transaction type?',type:'radio',tag:'ops',score:{0:4,1:2,2:1,3:0},opts:['Yes — complete, current, and documented','Partial — some steps written down','Mostly in my head','No documentation at all']},
+  {id:'po9',label:'How organized and in control do you feel from accepted offer through closing?',type:'scale',tag:'ops',low:'Reactive — constantly putting out fires',high:'Proactive — I know every next step before it\'s due'},
+ ]},
+ {questions:[
+  {id:'ad1',label:'Which compliance and admin tasks do you currently handle yourself, and which do you delegate?',type:'textarea',tag:'admin'},
+  {id:'ad2',label:'How long between closing and receiving your commission?',type:'radio',tag:'fin',score:{0:4,1:3,2:2,3:1,4:0},opts:['Same or next business day (wire)','2–5 business days','6–10 business days','More than 10 days','Varies widely and unpredictably']},
+  {id:'ad3',label:'How do you track income and expenses?',type:'radio',tag:'fin',score:{0:4,1:3,2:2,3:1,4:0},opts:['Real time — always current','Weekly catch-up','Monthly catch-up','Quarterly','Only at tax time — my CPA handles it']},
+  {id:'ad4',label:'Which admin tasks consume the most time or create the most stress each week? (select all)',type:'check',tag:'admin',opts:['Commission calculations','Invoice and expense tracking','Document filing and organization','MLS input and listing management','Email inbox management','Calendar and scheduling','Social media and content','Client follow-up communication','Compliance document review','Open house coordination']},
+  {id:'ad5',label:'Have you missed a deadline, made a calculation error, or lost a document due to disorganization?',type:'radio',tag:'admin',score:{0:4,1:2,2:1,3:0},opts:['Never','Once or twice — isolated','A few times a year','More than I\'d like — it\'s a pattern']},
+  {id:'ad6',label:'Do you have a structured weekly operating rhythm — time blocks for prospecting, admin, and client work?',type:'radio',tag:'ops',score:{0:4,1:2,2:1,3:0},opts:['Yes — a schedule I actually follow most weeks','I have it planned but frequently deviate','No structure — I respond to whatever comes up','Every week is different and reactive']},
+  {id:'ad7',label:'If you could hand three admin tasks to someone else tomorrow, what would they be and why?',type:'textarea',tag:'admin'},
+  {id:'ad8',label:'Are there tasks you\'ve been delaying for weeks or months because you don\'t have time or don\'t enjoy them?',type:'textarea',tag:'admin'},
+ ]},
+ {questions:[
+  {id:'tc1',label:'List every software or tech tool you currently pay for in your business.',type:'textarea',tag:'tech'},
+  {id:'tc2',label:'For each tool above: which are you actively using vs. paying for but barely touching?',type:'textarea',tag:'tech'},
+  {id:'tc3',label:'Do you have a CRM and are you actively using it to manage your pipeline and past-client database?',type:'radio',tag:'tech',score:{0:4,1:2,2:1,3:0},opts:['Yes — actively used and up to date','Yes — exists but inconsistently used','I have one but rarely open it','No CRM — contacts live in phone or email']},
+  {id:'tc4',label:'Your transaction software: is it a compliance tool (stores documents) or a business management tool (tells you what\'s due today)?',type:'radio',tag:'tech',score:{0:4,1:2,2:1,3:0},opts:['Business management — proactively surfaces what needs attention','Both — handles compliance and keeps me proactive','Primarily compliance — I use it because the brokerage requires it','I don\'t have dedicated transaction software']},
+  {id:'tc5',label:'Does your technology proactively alert you before deadlines — or do you find out about problems when someone calls?',type:'radio',tag:'tech',score:{0:4,1:2,2:1,3:0},opts:['Proactive — alerts me before things are due','Mixed — some automatic, some I have to check','Mostly reactive — I find out when something is late','Completely reactive — technology doesn\'t help me stay ahead']},
+  {id:'tc6',label:'What is one specific manual task you do every week that software could automate or eliminate?',type:'textarea',tag:'tech'},
+  {id:'tc7',label:'Does your current tech stack include each of the following? (select all you actively use)',type:'check',tag:'tech',opts:['CRM (pipeline + past clients)','Transaction management platform','E-signature (DocuSign / DotLoop)','MLS / IDX access','Showing scheduling software','Social media scheduling tool','Email marketing / drip platform','Bookkeeping / accounting software','Market analysis / CMA tool','Video / screen recording (Zoom, Loom)']},
+  {id:'tc8',label:'How well does your technology help you stay proactive — knowing what needs attention before it becomes urgent?',type:'scale',tag:'tech',low:'Fully reactive — I find out when it\'s already late',high:'Fully proactive — system tells me what\'s next'},
+ ]},
+ {questions:[
+  {id:'fi1',label:'Do you know your GCI for the last 12 months?',type:'radio',tag:'fin',score:{0:4,1:3,2:1,3:0},opts:['Yes, exactly','Approximately yes','Rough estimate only','No — I\'d have to look it up']},
+  {id:'fi2',label:'What is your estimated total monthly business overhead — all recurring costs?',type:'radio',tag:'fin',score:{0:2,1:3,2:3,3:2,4:2,5:0},opts:['Under $500/mo','$500–$1,500/mo','$1,500–$3,000/mo','$3,000–$5,000/mo','$5,000+/mo','I don\'t know this number']},
+  {id:'fi3',label:'Do you know your net income per closed transaction — commission received minus all overhead for that deal?',type:'radio',tag:'fin',score:{0:4,1:3,2:1,3:0},opts:['Yes — I calculate this regularly','Rough estimate','I\'ve never calculated it','No idea where to start']},
+  {id:'fi4',label:'How many transactions do you need to close this year to cover expenses and hit your personal income goal?',type:'textarea',tag:'fin'},
+  {id:'fi5',label:'Are there recurring expenses you\'re paying for but aren\'t confident are worth the cost?',type:'radio',tag:'fin',score:{0:0,1:1,2:4,3:1},opts:['Yes — probably several','Yes — one or two I\'m unsure about','No — I\'ve audited recently and everything is justified','I don\'t track subscriptions closely enough to know']},
+  {id:'fi6',label:'How do you handle estimated tax payments?',type:'radio',tag:'fin',score:{0:4,1:3,2:1,3:0,4:0},opts:['CPA manages quarterly estimates and year-end filing','I calculate and pay quarterly estimates myself','I pay at year-end only','I\'m behind on this — it worries me','I\'m not sure what my obligation is']},
+  {id:'fi7',label:'What is the maximum monthly cost you could absorb for a hire (VA, TC, assistant) without negatively impacting your take-home?',type:'radio',tag:'fin',opts:['Less than $500/mo','$500–$1,000/mo','$1,000–$2,000/mo','$2,000+/mo — I\'m ready','I\'d need to calculate this — I don\'t know']},
+ ]},
+ {questions:[
+  {id:'dg1',label:'If you had to stop working for two full weeks tomorrow with zero notice, what specifically would break in your business?',type:'textarea',tag:'ops'},
+  {id:'dg2',label:'Which best describes your current capacity?',type:'radio',tag:'ops',score:{0:1,1:4,2:2,3:0},opts:['Open capacity — I need more clients, not more help','Comfortable — working at a good pace','Stretched thin — doing everything but barely','Overwhelmed — things are consistently falling through']},
+  {id:'dg3',label:'What type of help would have the greatest immediate impact on your income or quality of life?',type:'radio',tag:'ops',opts:['Administrative support (paperwork, scheduling, filing)','Transaction coordination (contract to close)','Marketing and lead generation help','A buyer\'s agent to handle buyer clients','A listing coordinator','Financial or bookkeeping help','A strategic growth partner','Not sure — that\'s part of what I need to figure out']},
+  {id:'dg4',label:'Have you worked with any of the following before? (select all that apply)',type:'check',tag:'ops',opts:['Virtual assistant (VA)','Transaction coordinator (TC)','Buyer\'s agent','Listing coordinator','Part-time in-person admin','Business partner','No — any hire would be my first']},
+  {id:'dg5',label:'Do you have documented processes a new person could follow independently on day one?',type:'radio',tag:'ops',score:{0:4,1:2,2:1,3:0},opts:['Fully documented SOPs — ready to hand off','Partially documented — about 50% written','Most of it is in my head and would require verbal training','Nothing is documented — every process needs to be built from scratch']},
+  {id:'dg6',label:'What is your most honest hesitation about hiring or delegating right now?',type:'radio',tag:'ops',opts:['Cost — can\'t financially justify it yet','Finding the right person','Time required to train and onboard','Fear of losing control of client experience','Not sure I have consistent enough volume','A bad prior experience','No hesitation — I\'m ready to move']},
+  {id:'dg7',label:'If you were to hire a buyer\'s agent: do you have enough lead overflow to keep them productive — or would they self-source?',type:'radio',tag:'lead',opts:['Yes — I have more buyer leads than I can work','Partially — some overflow but they\'d need to self-generate too','No — they\'d be fully self-sourcing','Not considering a buyer\'s agent right now']},
+  {id:'dg8',label:'How ready is your business today to bring in and support another person — systems, processes, and financial stability?',type:'scale',tag:'ops',low:'Not ready — nothing is in place',high:'Fully ready — I just need the right person'},
+ ]},
+];
+
+var ADMIN_TASKS=['Commission receipt & deposit','Commission calculation / self-payout','Invoice tracking (TC, vendors, services)','Expense categorization','Monthly P&L review','Quarterly tax prep','Year-end 1099 & tax filing','Software subscription tracking','MLS listing input & updates','Document filing (DocuSign, Dotloop)','Email inbox management','Calendar & appointment scheduling','Social media posting','Listing marketing (flyers, ads)','Client communication follow-up','Open house coordination','CRM data entry & pipeline updates','Lead routing & initial response'];
+
+var answers={}, matrixData={}, curPage=0;
+
+function renderMatrix(){
+  var tb=document.getElementById('matrixBody');if(!tb)return;tb.innerHTML='';
+  ADMIN_TASKS.forEach(function(task,i){
+    var rid='mt'+i;
+    if(!matrixData[rid])matrixData[rid]={who:'',freq:'',pain:0,pri:''};
+    var d=matrixData[rid];
+    var dots=[1,2,3,4,5].map(function(n){return '<div class="pain-dot'+(d.pain===n?' sel':'')+'" onclick="setPain(\''+rid+'\','+n+')">'+n+'</div>';}).join('');
+    var fo=['Daily','Weekly','Bi-weekly','Monthly','Per transaction','Rarely'].map(function(o){return '<option'+(d.freq===o?' selected':'')+'>'+o+'</option>';}).join('');
+    var po=['','H – Hand off now','M – 60–90 days','L – Keep for now'].map(function(o){return '<option'+(d.pri===o?' selected':'')+'>'+o+'</option>';}).join('');
+    var tr=document.createElement('tr');
+    tr.innerHTML='<td><span class="task-label">'+task+'</span></td><td><input type="text" value="'+(d.who||'')+'" placeholder="Me/VA/TC..." onchange="setMx(\''+rid+'\',\'who\',this.value)"></td><td><select onchange="setMx(\''+rid+'\',\'freq\',this.value)"><option>Select...</option>'+fo+'</select></td><td><div class="pain-selector" id="ps'+rid+'">'+dots+'</div></td><td><select onchange="setMx(\''+rid+'\',\'pri\',this.value)"><option>Select...</option>'+po+'</select></td>';
+    tb.appendChild(tr);
+  });
+}
+function setPain(rid,n){if(!matrixData[rid])matrixData[rid]={who:'',freq:'',pain:0,pri:''};matrixData[rid].pain=n;var ps=document.getElementById('ps'+rid);if(ps)ps.querySelectorAll('.pain-dot').forEach(function(d,i){d.classList.toggle('sel',i+1===n);});updateProg();}
+function setMx(rid,f,v){if(!matrixData[rid])matrixData[rid]={who:'',freq:'',pain:0,pri:''};matrixData[rid][f]=v;updateProg();}
+
+function renderQs(pi){
+  var el=document.getElementById('ql'+pi);if(!el)return;el.innerHTML='';
+  var tagN={lead:'Lead Gen',ops:'Operations',admin:'Admin',tech:'Technology',fin:'Finance'};
+  var tagC={lead:'tl',ops:'to',admin:'ta',tech:'tt',fin:'tf'};
+  PAGES[pi].questions.forEach(function(q,idx){
+    var card=document.createElement('div');card.className='q-card'+(isAns(q.id)?' answered':'');card.id='qc'+q.id;
+    var tagH=q.tag?'<span class="q-tag '+tagC[q.tag]+'">'+tagN[q.tag]+'</span>':'';
+    var inp=buildInp(q);
+    card.innerHTML='<div class="q-head"><div class="q-badge">'+(idx+1)+'</div><div class="q-label">'+q.label+tagH+'</div></div><div class="q-body">'+inp+'</div>';
+    el.appendChild(card);
+  });
+}
+function buildInp(q){
+  var v=answers[q.id]||'';
+  if(q.type==='textarea')return '<textarea id="i'+q.id+'" placeholder="Type your answer here..." oninput="recA(\''+q.id+'\',this.value)">'+(v||'')+'</textarea>';
+  if(q.type==='radio')return '<div class="radio-group">'+q.opts.map(function(o,i){return '<label><input type="radio" name="'+q.id+'" value="'+i+'" onchange="recA(\''+q.id+'\',\''+o.replace(/'/g,"\\'")+'\')"'+(v===o?' checked':'')+'>'+o+'</label>';}).join('')+'</div>';
+  if(q.type==='check'){var sv=Array.isArray(v)?v:[];return '<div class="check-group">'+q.opts.map(function(o){return '<label><input type="checkbox" name="'+q.id+'" value="'+o+'" onchange="recChk(\''+q.id+'\',this)"'+(sv.indexOf(o)>-1?' checked':'')+'>'+o+'</label>';}).join('')+'</div>';}
+  if(q.type==='scale'){var sv2=v||5;return '<div class="slider-wrap"><input type="range" min="1" max="10" value="'+sv2+'" oninput="recA(\''+q.id+'\',this.value);document.getElementById(\'sv'+q.id+'\').textContent=this.value"><div class="slider-val" id="sv'+q.id+'">'+sv2+'</div></div><div class="scale-labels"><span>1 – '+q.low+'</span><span>10 – '+q.high+'</span></div>';}
+  return '';
+}
+function recA(id,val){answers[id]=val;var c=document.getElementById('qc'+id);if(c)c.classList.toggle('answered',isAns(id));updateProg();}
+function recChk(id,cb){if(!answers[id])answers[id]=[];var v=cb.value;if(cb.checked){if(answers[id].indexOf(v)===-1)answers[id].push(v);}else{answers[id]=answers[id].filter(function(x){return x!==v;});}var c=document.getElementById('qc'+id);if(c)c.classList.toggle('answered',isAns(id));updateProg();}
+function isAns(id){var v=answers[id];if(!v&&v!==0)return false;if(Array.isArray(v))return v.length>0;return v.toString().trim()!=='';}
+
+function updateProg(){
+  var tot=0,ans=0;
+  PAGES.forEach(function(p){p.questions.forEach(function(q){tot++;if(isAns(q.id))ans++;});});
+  var pct=tot>0?Math.round((ans/tot)*100):0;
+  document.getElementById('progFill').style.width=pct+'%';
+  document.getElementById('progPct').textContent=pct+'%';
+  document.getElementById('progLabel').textContent=ans+' of '+tot+' questions answered';
+  document.getElementById('footAns').textContent=ans;
+  document.getElementById('footTot').textContent=tot;
+  PAGES.forEach(function(p,pi){
+    var sa=p.questions.filter(function(q){return isAns(q.id);}).length;
+    var tab=document.querySelectorAll('.nav-tab')[pi];
+    if(tab){tab.classList.toggle('done',sa===p.questions.length);var td=document.getElementById('td'+pi);if(td)td.textContent=sa>0?sa:'●';}
+  });
+}
+
+function goTo(idx){
+  document.querySelectorAll('.page').forEach(function(p,i){p.classList.toggle('active',i===idx);});
+  document.querySelectorAll('.nav-tab').forEach(function(t,i){t.classList.toggle('active',i===idx);});
+  curPage=idx;
+  var btn=document.getElementById('nextBtn');
+  if(idx===6){btn.textContent='🖨 Print Plan';btn.onclick=function(){window.print();};buildResults();}
+  else if(idx===5){btn.textContent='See My Results →';btn.onclick=function(){goTo(6);};}
+  else{btn.textContent='Next Section →';btn.onclick=nextPage;}
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function nextPage(){if(curPage<6)goTo(curPage+1);}
+function prevPage(){if(curPage>0)goTo(curPage-1);}
+
+function buildResults(){
+  var sNames=['Lead Generation','Pipeline & Ops','Admin & Compliance','Technology','Finances','Delegation'];
+  var sg=document.getElementById('scoresGrid');sg.innerHTML='';
+  PAGES.forEach(function(p,pi){
+    var ans=p.questions.filter(function(q){return isAns(q.id);}).length;
+    var pct=Math.round((ans/p.questions.length)*100);
+    var col=pct>=80?'var(--sage)':pct>=50?'var(--gold)':'var(--rust)';
+    var lbl=pct>=80?'Well Covered':pct>=50?'Needs Attention':'Priority Gap';
+    var card=document.createElement('div');card.className='score-card';
+    card.innerHTML='<h4>'+sNames[pi]+'</h4><div class="score-num" style="color:'+col+'">'+pct+'%</div><div class="score-sub">'+lbl+'</div><div class="score-bar"><div class="score-bar-fill" style="width:'+pct+'%;background:'+col+'"></div></div>';
+    sg.appendChild(card);
+  });
+
+  var flags=detectFlags();
+  var bw=document.getElementById('bnsWrap');bw.innerHTML='';
+  if(flags.length===0){bw.innerHTML='<div class="bn-card med"><div class="bn-icon process">&#127775;</div><div class="bn-body"><h4>Strong Foundation Across All Areas</h4><p>Your answers don\'t surface clear gaps in the high-priority range. The opportunity is now optimization and growth — refining what works and making strategic investments in your next level.</p></div></div>';}
+  else{
+    flags.forEach(function(f){
+      var typeIcon={hire:'&#128101;',software:'&#128187;',process:'&#128203;'};
+      var typeBg={hire:'hire',software:'software',process:'process'};
+      var typeTag={hire:'bt-hire',software:'bt-soft',process:'bt-proc'};
+      var typeLabel={hire:'Hire / Delegate',software:'Software Solution',process:'Process Fix'};
+      var urgTag=f.severity==='high'?'<span class="bn-tag bt-urg">High Priority</span>':'';
+      var div=document.createElement('div');div.className='bn-card '+(f.severity==='high'?'high':'med');
+      div.innerHTML='<div class="bn-icon '+typeBg[f.type]+'">'+(typeIcon[f.type]||'&#9888;')+'</div><div class="bn-body"><h4>'+f.area+'</h4><p>'+f.rec+'</p><div class="bn-tags"><span class="bn-tag '+typeTag[f.type]+'">'+typeLabel[f.type]+'</span>'+urgTag+'</div></div>';
+      bw.appendChild(div);
+    });
+  }
+
+  var actions=buildActions(flags);
+  var ab=document.getElementById('actionBody');ab.innerHTML='';
+  actions.forEach(function(a){
+    var tr=document.createElement('tr');
+    var pc=a.p==='Now'?'pn':a.p==='Soon'?'ps':'pl';
+    tr.innerHTML='<td>'+a.text+'</td><td><span class="p-badge '+pc+'">'+a.p+'</span></td><td><input type="text" placeholder="e.g. June 15"></td>';
+    ab.appendChild(tr);
+  });
+}
+
+function detectFlags(){
+  var f=[];
+  var add=function(area,severity,type,rec){f.push({area:area,severity:severity,type:type,rec:rec});};
+
+  if(answers['lg3']&&(answers['lg3'].indexOf('Under 25')>-1||answers['lg3'].indexOf('25–50')>-1))
+    add('Lead Follow-Up Speed','high','process','Your lead response rate is below where it needs to be. The fix is almost always a documented 5-step follow-up sequence in your CRM — calls, texts, and emails at defined intervals within the first 72 hours. Without this, you are losing leads you already paid to generate.');
+  if(answers['lg6']&&answers['lg6'].indexOf('inactive')>-1)
+    add('Database Nurture','high','process','A database with no outreach is dead inventory. A scheduled contact cadence — even one touchpoint per quarter per person — consistently recovers business currently going to other agents. This is your highest-ROI, lowest-cost lead source.');
+  if(answers['lg7']&&answers['lg7'].indexOf('reach out')>-1)
+    add('Past Client System','high','process','Referrals are the most profitable lead source in real estate and require the least marketing spend. Without a systematic past-client outreach program, you\'re leaving repeat and referral business to chance. A simple 3–4 touch per year plan produces measurable results within one quarter.');
+  if(answers['po2']&&answers['po2'].indexOf('head')>-1)
+    add('Transaction Management System','high','software','Managing transactions in your head is a ticking clock. A missed deadline or lost document creates legal liability, not just stress. A dedicated transaction management platform (Dotloop, SkySlope, or Command) is non-negotiable at any meaningful volume.');
+  if(answers['po5']&&answers['po5'].indexOf('No — I handle')>-1&&answers['po6']&&answers['po6'].indexOf('15+')>-1)
+    add('Transaction Coordination','high','hire','You\'re spending 15+ hours per week on tasks a Transaction Coordinator handles for $350–$500 per transaction. At 2 closings per month, a TC returns more in recovered time than it costs — and frees you to work on income-generating activities instead.');
+  if(answers['po6']&&answers['po6'].indexOf('15+')>-1&&(!answers['po5']||answers['po5'].indexOf('No — I handle')>-1))
+    add('Time Spent on Transactions','high','hire','15+ hours per week on transaction management is the most common growth ceiling for agents who plateau at 20–25 deals per year. A Transaction Coordinator is typically the single highest ROI hire available to a solo agent at this stage.');
+  if(answers['po8']&&(answers['po8'].indexOf('head')>-1||answers['po8'].indexOf('No documentation')>-1))
+    add('Process Documentation','high','process','If your transaction process only exists in your head, your business is not scalable and not recoverable if you\'re sick or unavailable. Writing down your top 3–5 workflows is a one-time 4-hour investment that compounds every time you onboard someone or scale up.');
+  if(answers['ad3']&&answers['ad3'].indexOf('tax time')>-1)
+    add('Bookkeeping & Financial Tracking','high','hire','Catching up only at tax time means you have zero real-time financial picture of your business. A contract bookkeeper at 6–10 hours per month costs $300–$800/mo and returns the kind of clarity that directly improves every financial decision you make.');
+  if(answers['ad6']&&(answers['ad6'].indexOf('No structure')>-1||answers['ad6'].indexOf('different and reactive')>-1))
+    add('Weekly Operating Rhythm','med','process','Without a structured weekly schedule, you\'ll always be reactive. Time-blocking specific slots for prospecting, admin, and client work — even loosely — produces measurable consistency improvements within 30 days for most agents who implement it.');
+  if(answers['tc3']&&(answers['tc3'].indexOf('rarely')>-1||answers['tc3'].indexOf('No CRM')>-1))
+    add('CRM Adoption','high','software','A CRM you don\'t use is a recurring cost with no return — and creates false comfort that your contacts are managed when they aren\'t. Either commit to using your current platform consistently, or replace it with one you\'ll actually open. An unused CRM is worse than no CRM.');
+  if(answers['tc4']&&answers['tc4'].indexOf('compliance')>-1)
+    add('Compliance-Only Tech Gap','med','software','Your transaction software is a compliance tool, not a business management tool. You\'re missing a system that surfaces what\'s due today, alerts you before deadlines, and keeps you proactive. These are two distinct jobs — and most agents only have the first one covered.');
+  if(answers['fi2']&&answers['fi2'].indexOf('I don\'t know')>-1)
+    add('Overhead Awareness','high','process','Not knowing your monthly overhead makes every business decision a guess. Block 30 minutes this week to list every recurring expense: MLS fees, brokerage costs, software, marketing, E&O. This single number should drive every financial decision you make going forward.');
+  if(answers['fi6']&&(answers['fi6'].indexOf('worries me')>-1||answers['fi6'].indexOf('not sure')>-1))
+    add('Tax Planning','high','hire','Worry about taxes is a signal to act now, not later. If you\'re not making quarterly estimated payments, you\'re likely accumulating a penalty. Find a CPA who specializes in real estate agents — not a general tax preparer — before the next quarter closes.');
+  if(answers['dg2']&&(answers['dg2'].indexOf('Overwhelmed')>-1||answers['dg2'].indexOf('Stretched')>-1))
+    add('Capacity — Help Is Needed Now','high','hire','You\'re stretched or overwhelmed — this isn\'t a character flaw, it means your business has outgrown your systems. The question is not whether to get help, but what type and in what order. Work through Section 06 answers to clarify the right first hire.');
+  if(answers['dg5']&&(answers['dg5'].indexOf('head')>-1||answers['dg5'].indexOf('Nothing')>-1))
+    add('SOP Documentation Before Hiring','med','process','Hiring anyone before your workflows are documented means onboarding in 3 months instead of 2 weeks — and creates a business dependent on you even after the hire. Document your top 5 workflows first. This is the prerequisite to any successful delegation.');
+
+  f.sort(function(a,b){var so={high:0,med:1,low:2};return so[a.severity]-so[b.severity];});
+  return f;
+}
+
+function buildActions(flags){
+  var base=[
+    {text:'List every recurring business expense to calculate your true monthly overhead',p:'Now'},
+    {text:'Audit every software subscription — cancel anything you haven\'t opened in 60 days',p:'Now'},
+    {text:'Write down the top 3 tasks consuming the most non-dollar-producing time each week',p:'Now'},
+    {text:'Document your transaction workflow in a basic checklist (even rough bullet points)',p:'Soon'},
+    {text:'Evaluate your CRM — is it being actively used, or does it need to be replaced?',p:'Soon'},
+  ];
+  var extra=[];
+  flags.forEach(function(f){
+    if(f.area==='Transaction Coordination')extra.push({text:'Research TC options: brokerage-provided, local freelance, or virtual TC service',p:'Now'});
+    if(f.area==='Bookkeeping & Financial Tracking')extra.push({text:'Contact 2–3 contract bookkeepers and define your monthly scope of work before outreach',p:'Now'});
+    if(f.area==='Lead Follow-Up Speed')extra.push({text:'Build a 5-step new lead follow-up sequence in your CRM — calls, texts, and emails timed for the first 72 hours',p:'Now'});
+    if(f.area==='Database Nurture')extra.push({text:'Identify all contacts with zero outreach in 90+ days and create a re-engagement campaign',p:'Soon'});
+    if(f.area==='Past Client System')extra.push({text:'Map out a simple 4-touch annual past client outreach plan and block the first touchpoint on your calendar',p:'Soon'});
+    if(f.area==='Tax Planning')extra.push({text:'Schedule a consultation with a real-estate-specialized CPA before the end of next month',p:'Now'});
+    if(f.area==='CRM Adoption')extra.push({text:'Block 2 hours to audit your CRM: set it up properly or evaluate a simpler replacement',p:'Soon'});
+    if(f.area==='Capacity — Help Is Needed Now')extra.push({text:'Define the specific role you need first, write a 1-page job description, and set a hire-by date',p:'Now'});
+    if(f.area==='SOP Documentation Before Hiring')extra.push({text:'Document your top 3 workflows before your next hire — even rough bullet-point checklists count',p:'Now'});
+  });
+  return base.concat(extra).slice(0,14);
+}
+
+function resetAll(){
+  if(!confirm('Clear all answers and start over?'))return;
+  answers={};matrixData={};
+  PAGES.forEach(function(p,pi){renderQs(pi);});
+  renderMatrix();goTo(0);
+}
+
+PAGES.forEach(function(p,pi){renderQs(pi);});
+renderMatrix();updateProg();
+</script>
+</body>
+</html>

@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Real Estate Business Score Card — Free Assessment</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#f5f3ef;--surface:#fff;--navy:#172135;--navy2:#223350;
+  --rust:#b94a2c;--rust-l:#d4633e;--gold:#c59a3c;--gold-l:#e0b84e;
+  --sage:#3d6452;--sage-l:#4d7a63;--border:#ddd8d0;--muted:#7a7063;--text:#1e2530;
+}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+
+/* TOPBAR */
+.topbar{background:var(--navy);padding:0 40px;display:flex;align-items:center;justify-content:space-between;height:54px;}
+.topbar-logo{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:700;color:#fff;}
+.topbar-logo span{color:var(--gold);}
+.topbar-tag{font-size:10px;color:rgba(255,255,255,.4);letter-spacing:1.5px;text-transform:uppercase;}
+
+/* HERO */
+.hero{background:linear-gradient(140deg,var(--navy) 0%,var(--navy2) 100%);padding:56px 40px 48px;position:relative;overflow:hidden;}
+.hero::after{content:'';position:absolute;bottom:-80px;right:-80px;width:340px;height:340px;border-radius:50%;border:1px solid rgba(197,154,60,.2);pointer-events:none;}
+.hero-eyebrow{font-size:10px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:14px;}
+.hero h1{font-family:'Cormorant Garamond',serif;font-size:clamp(30px,4.5vw,54px);font-weight:700;color:#fff;line-height:1.08;max-width:660px;margin-bottom:14px;}
+.hero h1 em{color:var(--gold);font-style:normal;}
+.hero-sub{color:rgba(255,255,255,.62);font-size:14px;line-height:1.82;max-width:520px;margin-bottom:28px;}
+.hero-promise{display:flex;flex-wrap:wrap;gap:10px;}
+.promise-pill{display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);border-radius:99px;padding:6px 14px;font-size:11.5px;font-weight:500;color:rgba(255,255,255,.78);}
+
+/* TIME BADGE */
+.time-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(197,154,60,.15);border:1px solid rgba(197,154,60,.35);border-radius:8px;padding:10px 18px;margin:28px 40px 0;font-size:13px;font-weight:500;color:var(--gold);}
+
+/* MAIN LAYOUT */
+.main{max-width:780px;margin:0 auto;padding:44px 40px 120px;}
+
+/* SECTION HEADERS */
+.section-head{margin-bottom:20px;margin-top:36px;}
+.section-head:first-of-type{margin-top:0;}
+.section-kicker{font-size:9.5px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:var(--rust);margin-bottom:7px;}
+.section-head h2{font-family:'Cormorant Garamond',serif;font-size:clamp(20px,2.8vw,28px);font-weight:700;color:var(--navy);line-height:1.2;}
+
+/* SCORE CARDS — the 5 areas */
+.area-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:12px;}
+@media(max-width:560px){.area-grid{grid-template-columns:1fr;}}
+.area-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:box-shadow .2s;}
+.area-card:hover{box-shadow:0 4px 18px rgba(0,0,0,.07);}
+.area-card-head{padding:14px 18px 10px;display:flex;align-items:center;gap:10px;}
+.area-icon{font-size:20px;flex-shrink:0;}
+.area-title{font-size:13.5px;font-weight:600;color:var(--navy);}
+.area-body{padding:4px 18px 16px;}
+
+/* QUICK QUESTIONS — radio style */
+.qq-list{display:flex;flex-direction:column;gap:12px;}
+.qq-item{}
+.qq-label{font-size:13px;font-weight:500;color:var(--text);margin-bottom:7px;line-height:1.5;}
+.qq-opts{display:flex;flex-wrap:wrap;gap:6px;}
+.qq-opts label{display:inline-flex;align-items:center;gap:6px;border:1.5px solid var(--border);border-radius:7px;padding:6px 11px;font-size:11.5px;font-weight:500;cursor:pointer;transition:all .18s;background:var(--bg);color:var(--text);}
+.qq-opts label:hover{border-color:var(--gold);background:#fffcf5;}
+.qq-opts input{accent-color:var(--rust);}
+.qq-opts input:checked + span{font-weight:600;}
+.qq-opts label:has(input:checked){border-color:var(--gold);background:#fffcf5;}
+
+/* DIVIDER */
+.divider{height:1px;background:var(--border);margin:32px 0;}
+
+/* RESULTS */
+.results-wrap{display:none;}
+.results-wrap.show{display:block;}
+
+.overall-score-card{background:var(--navy);border-radius:14px;padding:36px;text-align:center;margin-bottom:28px;position:relative;overflow:hidden;}
+.overall-score-card::after{content:'';position:absolute;bottom:-50px;right:-50px;width:200px;height:200px;border-radius:50%;border:1px solid rgba(197,154,60,.25);pointer-events:none;}
+.osc-eyebrow{font-size:9.5px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:12px;}
+.osc-score{font-family:'Cormorant Garamond',serif;font-size:80px;font-weight:700;line-height:1;color:#fff;margin-bottom:8px;}
+.osc-score span{font-size:32px;color:rgba(255,255,255,.5);}
+.osc-label{font-size:16px;font-weight:600;color:var(--gold);margin-bottom:8px;}
+.osc-sub{font-size:13px;color:rgba(255,255,255,.55);max-width:380px;margin:0 auto;line-height:1.7;}
+
+/* AREA SCORES */
+.area-scores-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:28px;}
+@media(max-width:560px){.area-scores-grid{grid-template-columns:1fr 1fr;}}
+.as-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center;}
+.as-icon{font-size:22px;margin-bottom:6px;}
+.as-name{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;}
+.as-score{font-size:28px;font-weight:700;margin-bottom:4px;}
+.as-grade{font-size:10px;font-weight:600;letter-spacing:.5px;padding:2px 8px;border-radius:4px;}
+.grade-a{background:#edf7f2;color:#2d6b4f;}
+.grade-b{background:#fef9ec;color:#8a6500;}
+.grade-c{background:#fdecea;color:#b94a2c;}
+
+/* WIN CARDS */
+.win-card{background:var(--surface);border:1px solid var(--border);border-left:4px solid var(--sage);border-radius:0 10px 10px 0;padding:16px 18px;margin-bottom:12px;}
+.win-card h4{font-size:13.5px;font-weight:600;color:var(--navy);margin-bottom:4px;}
+.win-card p{font-size:12px;color:var(--muted);line-height:1.7;}
+.win-badge{display:inline-block;font-size:9.5px;font-weight:700;letter-spacing:.5px;padding:2px 8px;border-radius:4px;background:#edf7f2;color:#2d6b4f;margin-top:6px;}
+
+/* UPGRADE CTA */
+.upgrade-cta{background:linear-gradient(135deg,var(--navy) 0%,var(--navy2) 100%);border-radius:14px;padding:36px;text-align:center;margin-top:32px;}
+.upgrade-cta h3{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:700;color:#fff;margin-bottom:10px;}
+.upgrade-cta p{color:rgba(255,255,255,.62);font-size:13.5px;line-height:1.75;max-width:440px;margin:0 auto 22px;}
+.cta-features{display:grid;grid-template-columns:1fr 1fr;gap:8px;max-width:420px;margin:0 auto 24px;text-align:left;}
+.cta-feature{display:flex;align-items:flex-start;gap:8px;font-size:12px;color:rgba(255,255,255,.72);}
+.cta-check{color:var(--gold);flex-shrink:0;margin-top:1px;}
+.btn-cta{display:inline-block;background:var(--gold);color:var(--navy);font-family:'Inter',sans-serif;font-size:14px;font-weight:700;padding:13px 32px;border-radius:9px;border:none;cursor:pointer;transition:all .2s;letter-spacing:.2px;}
+.btn-cta:hover{background:var(--gold-l);transform:translateY(-2px);box-shadow:0 6px 20px rgba(197,154,60,.4);}
+.cta-note{font-size:11px;color:rgba(255,255,255,.35);margin-top:12px;}
+
+/* SUBMIT */
+.submit-wrap{text-align:center;padding:28px 0;}
+.btn-submit{background:var(--rust);color:#fff;font-family:'Inter',sans-serif;font-size:14px;font-weight:700;padding:14px 40px;border-radius:9px;border:none;cursor:pointer;transition:all .2s;letter-spacing:.2px;}
+.btn-submit:hover{background:var(--rust-l);transform:translateY(-2px);box-shadow:0 6px 18px rgba(185,74,44,.3);}
+.btn-submit:disabled{opacity:.5;cursor:default;transform:none;box-shadow:none;}
+
+/* PROGRESS BAR */
+.progress-wrap{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 40px;}
+.progress-meta{display:flex;justify-content:space-between;font-size:11.5px;color:var(--muted);margin-bottom:7px;}
+.progress-track{height:5px;background:var(--border);border-radius:3px;overflow:hidden;}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-l));border-radius:3px;transition:width .4s ease;width:0%;}
+
+.callout{background:#fffcf5;border-left:3px solid var(--gold);padding:12px 16px;border-radius:0 8px 8px 0;font-size:12.5px;color:#4a5568;line-height:1.72;margin-bottom:20px;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-logo">Real Estate<span> Score Card</span></div>
+  <div class="topbar-tag">Free Business Assessment</div>
+</div>
+
+<div class="hero">
+  <div class="hero-eyebrow">5-Minute Business Score Card</div>
+  <h1>Is Your Real Estate<br>Business <em>Built to Scale</em>?</h1>
+  <div class="hero-sub">Answer 15 quick questions across the 5 pillars of a successful real estate business. Get an instant score, identify your biggest hidden bottleneck, and walk away with one specific win you can act on today.</div>
+  <div class="hero-promise">
+    <div class="promise-pill">&#9989; 15 questions — 5 minutes</div>
+    <div class="promise-pill">&#128200; Instant score across 5 areas</div>
+    <div class="promise-pill">&#127919; One actionable quick win</div>
+    <div class="promise-pill">&#128101; No email required</div>
+  </div>
+</div>
+
+<div class="time-badge">&#128336; Most agents finish in under 4 minutes &mdash; answers are scored instantly when you click "Get My Score"</div>
+
+<div class="progress-wrap">
+  <div class="progress-meta">
+    <span id="progLabel">0 of 15 questions answered</span>
+    <span id="progPct">0%</span>
+  </div>
+  <div class="progress-track"><div class="progress-fill" id="progFill"></div></div>
+</div>
+
+<div class="main">
+
+  <!-- ═══ QUESTIONS ═══ -->
+  <div id="questionsWrap">
+
+    <div class="section-head" style="margin-top:0;">
+      <div class="section-kicker">Pillar 01 — Lead Generation</div>
+      <h2>Where does your business come from?</h2>
+    </div>
+    <div class="callout">&#128161; There are no right or wrong answers. Pick the one that most honestly describes your situation <em>right now</em> — not your goal.</div>
+
+    <div class="qq-list" id="q-lead"></div>
+
+    <div class="divider"></div>
+
+    <div class="section-head">
+      <div class="section-kicker">Pillar 02 — Pipeline &amp; Operations</div>
+      <h2>How do your transactions run?</h2>
+    </div>
+    <div class="qq-list" id="q-ops"></div>
+
+    <div class="divider"></div>
+
+    <div class="section-head">
+      <div class="section-kicker">Pillar 03 — Administration</div>
+      <h2>Who handles the behind-the-scenes work?</h2>
+    </div>
+    <div class="qq-list" id="q-admin"></div>
+
+    <div class="divider"></div>
+
+    <div class="section-head">
+      <div class="section-kicker">Pillar 04 — Technology</div>
+      <h2>Are your tools actually working for you?</h2>
+    </div>
+    <div class="qq-list" id="q-tech"></div>
+
+    <div class="divider"></div>
+
+    <div class="section-head">
+      <div class="section-kicker">Pillar 05 — Finances</div>
+      <h2>Do you know your numbers?</h2>
+    </div>
+    <div class="qq-list" id="q-fin"></div>
+
+    <div class="submit-wrap">
+      <button class="btn-submit" id="submitBtn" onclick="showResults()" disabled>Get My Score &#8594;</button>
+      <div style="font-size:11.5px;color:var(--muted);margin-top:10px;" id="submitHint">Answer all 15 questions to unlock your score</div>
+    </div>
+
+  </div><!-- end questionsWrap -->
+
+  <!-- ═══ RESULTS ═══ -->
+  <div class="results-wrap" id="resultsWrap">
+
+    <div class="overall-score-card">
+      <div class="osc-eyebrow">Your Business Score</div>
+      <div class="osc-score" id="overallScore">0<span>/100</span></div>
+      <div class="osc-label" id="overallLabel">Calculating...</div>
+      <div class="osc-sub" id="overallSub"></div>
+    </div>
+
+    <div class="section-head" style="margin-top:0;">
+      <div class="section-kicker">Score Breakdown</div>
+      <h2>How You Scored Across All 5 Pillars</h2>
+    </div>
+    <div class="area-scores-grid" id="areaScores"></div>
+
+    <div class="divider"></div>
+
+    <div class="section-head">
+      <div class="section-kicker">Your Biggest Bottleneck</div>
+      <h2>Where to Focus First</h2>
+    </div>
+    <div id="bottleneckCard"></div>
+
+    <div class="divider"></div>
+
+    <div class="section-head">
+      <div class="section-kicker">Quick Wins</div>
+      <h2>Three Things You Can Do This Week</h2>
+    </div>
+    <div class="callout">These are specific, low-cost actions — not vague advice. Pick the one that resonates most and do it before Friday.</div>
+    <div id="quickWins"></div>
+
+    <div class="upgrade-cta">
+      <h3>Ready to Go Deeper?</h3>
+      <p>This score card shows you the surface. The full Solo Agent Diagnostic maps every bottleneck in detail — with a complete 90-day action plan built from your specific answers.</p>
+      <div class="cta-features">
+        <div class="cta-feature"><span class="cta-check">&#10003;</span><span>50+ diagnostic questions across 6 areas</span></div>
+        <div class="cta-feature"><span class="cta-check">&#10003;</span><span>Full task audit with outsource priorities</span></div>
+        <div class="cta-feature"><span class="cta-check">&#10003;</span><span>Hire vs. software vs. process guidance</span></div>
+        <div class="cta-feature"><span class="cta-check">&#10003;</span><span>Personalized 90-day action plan</span></div>
+      </div>
+      <button class="btn-cta" onclick="window.print()">&#128438; Save My Score Card</button>
+      <div class="cta-note">Or ask for the full Solo Agent Diagnostic to go deeper</div>
+    </div>
+
+    <div style="text-align:center;margin-top:28px;">
+      <button onclick="resetAll()" style="background:transparent;border:2px solid var(--border);color:var(--muted);font-family:'Inter',sans-serif;font-size:12.5px;font-weight:600;padding:9px 20px;border-radius:8px;cursor:pointer;">&#8592; Retake Assessment</button>
+    </div>
+
+  </div><!-- end resultsWrap -->
+
+</div><!-- end main -->
+
+<script>
+// ══════════════════════════════════════════════════
+// QUESTION DATA — 3 per pillar = 15 total
+// Scoring: each answer carries a point value 0–4
+// ══════════════════════════════════════════════════
+var QUESTIONS = {
+  lead: [
+    {
+      id:'l1', text:'How consistent is your lead generation activity week over week?',
+      opts:[
+        {label:'I prospect intentionally every week — it\'s a non-negotiable habit', pts:4},
+        {label:'I prospect most weeks but skip when I\'m busy with clients', pts:2},
+        {label:'I prospect when I have time, which isn\'t often', pts:1},
+        {label:'I wait for leads to come in — I don\'t really prospect', pts:0},
+      ]
+    },
+    {
+      id:'l2', text:'What happens to a lead who says "not ready yet — check back in 6 months"?',
+      opts:[
+        {label:'They go into an automated CRM nurture sequence and I get a reminder to call', pts:4},
+        {label:'I add them to a list and try to remember to follow up', pts:2},
+        {label:'I usually lose track of them and hope they come back', pts:1},
+        {label:'I don\'t have a system for this — they mostly disappear', pts:0},
+      ]
+    },
+    {
+      id:'l3', text:'How active is your past-client and sphere database right now?',
+      opts:[
+        {label:'I have a regular outreach cadence — calls, texts, or market updates throughout the year', pts:4},
+        {label:'I reach out occasionally but it\'s not consistent', pts:2},
+        {label:'I rely on them to reach out when they need me', pts:1},
+        {label:'My database is essentially inactive', pts:0},
+      ]
+    },
+  ],
+  ops: [
+    {
+      id:'o1', text:'How do you track transaction deadlines and tasks right now?',
+      opts:[
+        {label:'Dedicated software — every deadline is logged and I get alerts before they\'re due', pts:4},
+        {label:'A spreadsheet or calendar I update manually', pts:2},
+        {label:'A combination of notes, texts, and memory', pts:1},
+        {label:'Mostly in my head — I rely on memory and reminders from others', pts:0},
+      ]
+    },
+    {
+      id:'o2', text:'How often do lenders, title companies, or clients contact you asking for documents or updates you have to track down?',
+      opts:[
+        {label:'Rarely — my systems surface this before anyone needs to ask', pts:4},
+        {label:'Occasionally — maybe once a week', pts:2},
+        {label:'Often — this is a regular frustration', pts:1},
+        {label:'Constantly — I\'m frequently reactive and scrambling', pts:0},
+      ]
+    },
+    {
+      id:'o3', text:'Do you have a written checklist or process template any assistant could follow for a transaction?',
+      opts:[
+        {label:'Yes — documented, current, and ready to hand off', pts:4},
+        {label:'Partial — some steps documented, some gaps', pts:2},
+        {label:'It mostly lives in my head', pts:1},
+        {label:'No documentation at all', pts:0},
+      ]
+    },
+  ],
+  admin: [
+    {
+      id:'a1', text:'Which best describes how you handle bookkeeping and expense tracking?',
+      opts:[
+        {label:'Real-time — income and expenses are always current', pts:4},
+        {label:'I catch up weekly or monthly', pts:2},
+        {label:'I catch up quarterly or before taxes', pts:1},
+        {label:'My CPA deals with it at year-end — I barely track anything during the year', pts:0},
+      ]
+    },
+    {
+      id:'a2', text:'Do you have a defined weekly schedule — specific time blocks for prospecting, admin, and client-facing work?',
+      opts:[
+        {label:'Yes — a structured schedule I actually follow most weeks', pts:4},
+        {label:'I have it loosely planned but often deviate', pts:2},
+        {label:'No structure — I respond to whatever comes up', pts:1},
+        {label:'Every week is completely different and reactive', pts:0},
+      ]
+    },
+    {
+      id:'a3', text:'How much of your time each week goes to tasks that don\'t directly generate income (paperwork, filing, scheduling, social media)?',
+      opts:[
+        {label:'Under 5 hours — I\'ve delegated or automated most of it', pts:4},
+        {label:'5–10 hours — manageable but could be better', pts:2},
+        {label:'10–20 hours — it\'s eating into prospecting and client time', pts:1},
+        {label:'20+ hours — admin is dominating my week', pts:0},
+      ]
+    },
+  ],
+  tech: [
+    {
+      id:'t1', text:'Do you actively use a CRM to manage your pipeline and past-client database?',
+      opts:[
+        {label:'Yes — it\'s up to date and I trust the data', pts:4},
+        {label:'Yes — but inconsistently, it falls behind', pts:2},
+        {label:'I have one but barely open it', pts:1},
+        {label:'No CRM — contacts live in my phone or email', pts:0},
+      ]
+    },
+    {
+      id:'t2', text:'Your transaction software: does it tell you what\'s due today (proactive) — or just store documents (compliance)?',
+      opts:[
+        {label:'Proactive — it surfaces what needs attention before it\'s urgent', pts:4},
+        {label:'Mostly compliance but somewhat helpful for tracking', pts:2},
+        {label:'Primarily a document storage and compliance tool', pts:1},
+        {label:'I don\'t have dedicated transaction software', pts:0},
+      ]
+    },
+    {
+      id:'t3', text:'Have you recently audited your software subscriptions — confirming each tool is actively used and worth the cost?',
+      opts:[
+        {label:'Yes — I\'ve done this recently and everything is intentional', pts:4},
+        {label:'Not recently, but I have a reasonable sense of what I use', pts:2},
+        {label:'Not really — I\'m paying for things I\'m not sure I use', pts:1},
+        {label:'No — I don\'t track my subscriptions closely', pts:0},
+      ]
+    },
+  ],
+  fin: [
+    {
+      id:'f1', text:'Do you know your total monthly business overhead — every recurring cost?',
+      opts:[
+        {label:'Yes, exactly — I review it regularly', pts:4},
+        {label:'Approximately — I have a rough figure', pts:2},
+        {label:'Not really — I\'d have to add it all up', pts:1},
+        {label:'No idea — I\'ve never added it up', pts:0},
+      ]
+    },
+    {
+      id:'f2', text:'Do you know how many transactions you need to close this year to hit your personal income goal?',
+      opts:[
+        {label:'Yes — I\'ve calculated my break-even and income target', pts:4},
+        {label:'Roughly — I have a general sense', pts:2},
+        {label:'Not really — I haven\'t done the math', pts:1},
+        {label:'No — I focus on closings and hope the money works out', pts:0},
+      ]
+    },
+    {
+      id:'f3', text:'How do you handle quarterly estimated tax payments?',
+      opts:[
+        {label:'CPA handles quarterly estimates and year-end — I\'m fully covered', pts:4},
+        {label:'I calculate and pay quarterly estimates myself', pts:2},
+        {label:'I pay at year-end only and deal with penalties if they come', pts:1},
+        {label:'I\'m behind on this — it\'s a source of stress', pts:0},
+      ]
+    },
+  ],
+};
+
+var answers = {};
+var AREAS = ['lead','ops','admin','tech','fin'];
+var AREA_META = {
+  lead:{name:'Lead Generation',icon:'&#127919;',max:12},
+  ops:{name:'Pipeline & Ops',icon:'&#9881;&#65039;',max:12},
+  admin:{name:'Administration',icon:'&#128203;',max:12},
+  tech:{name:'Technology',icon:'&#128187;',max:12},
+  fin:{name:'Finances',icon:'&#128176;',max:12},
+};
+
+// Render questions
+function renderArea(area) {
+  var el = document.getElementById('q-' + area);
+  if (!el) return;
+  el.innerHTML = '';
+  QUESTIONS[area].forEach(function(q, qi) {
+    var div = document.createElement('div');
+    div.className = 'qq-item';
+    var optsHtml = q.opts.map(function(o, oi) {
+      return '<label><input type="radio" name="' + q.id + '" value="' + o.pts + '" data-qid="' + q.id + '" onchange="recordAnswer(this)"><span>' + o.label + '</span></label>';
+    }).join('');
+    div.innerHTML = '<div class="qq-label">' + (qi+1) + '. ' + q.text + '</div><div class="qq-opts">' + optsHtml + '</div>';
+    el.appendChild(div);
+  });
+}
+
+function recordAnswer(input) {
+  answers[input.dataset.qid] = parseInt(input.value, 10);
+  updateProgress();
+}
+
+function updateProgress() {
+  var total = 0, answered = 0;
+  AREAS.forEach(function(a) {
+    QUESTIONS[a].forEach(function(q) {
+      total++;
+      if (answers[q.id] !== undefined) answered++;
+    });
+  });
+  var pct = total > 0 ? Math.round((answered/total)*100) : 0;
+  document.getElementById('progFill').style.width = pct + '%';
+  document.getElementById('progPct').textContent = pct + '%';
+  document.getElementById('progLabel').textContent = answered + ' of ' + total + ' questions answered';
+  var btn = document.getElementById('submitBtn');
+  var hint = document.getElementById('submitHint');
+  if (answered === total) {
+    btn.disabled = false;
+    hint.textContent = 'All questions answered — click to see your score!';
+    hint.style.color = 'var(--sage)';
+    hint.style.fontWeight = '600';
+  } else {
+    btn.disabled = true;
+    hint.textContent = (total - answered) + ' question' + (total - answered !== 1 ? 's' : '') + ' remaining';
+    hint.style.color = 'var(--muted)';
+    hint.style.fontWeight = '400';
+  }
+}
+
+function getAreaScore(area) {
+  var qs = QUESTIONS[area];
+  var earned = 0, possible = qs.length * 4;
+  qs.forEach(function(q) { if (answers[q.id] !== undefined) earned += answers[q.id]; });
+  return {earned: earned, possible: possible, pct: Math.round((earned / possible) * 100)};
+}
+
+function showResults() {
+  // compute
+  var totalEarned = 0, totalPossible = 0;
+  var scores = {};
+  AREAS.forEach(function(a) {
+    var s = getAreaScore(a);
+    scores[a] = s;
+    totalEarned += s.earned;
+    totalPossible += s.possible;
+  });
+  var overall = Math.round((totalEarned / totalPossible) * 100);
+
+  // overall card
+  document.getElementById('overallScore').innerHTML = overall + '<span>/100</span>';
+  var label, sub;
+  if (overall >= 80) { label = 'Strong Foundation'; sub = 'Your business has solid systems in place. The opportunity now is optimization and growth — fine-tuning what\'s working and building toward scale.'; }
+  else if (overall >= 60) { label = 'Good Bones, Clear Gaps'; sub = 'You have real strengths, but 1–2 areas are creating drag on your income and time. Fixing those specific gaps will have an outsized impact.'; }
+  else if (overall >= 40) { label = 'Running on Willpower'; sub = 'Your business is moving forward, but largely on personal effort rather than systems. That works until it doesn\'t — adding structure in the right areas changes the trajectory significantly.'; }
+  else { label = 'Systems Are the Priority'; sub = 'The good news: your bottlenecks are fixable, and fixing them doesn\'t require more hustle — it requires better structure. The quick wins below are your starting point.'; }
+  document.getElementById('overallLabel').textContent = label;
+  document.getElementById('overallSub').textContent = sub;
+
+  // area scores
+  var asg = document.getElementById('areaScores');
+  asg.innerHTML = '';
+  AREAS.forEach(function(a) {
+    var s = scores[a];
+    var meta = AREA_META[a];
+    var gradeClass = s.pct >= 75 ? 'grade-a' : s.pct >= 50 ? 'grade-b' : 'grade-c';
+    var gradeText = s.pct >= 75 ? 'Strong' : s.pct >= 50 ? 'Developing' : 'Needs Work';
+    var scoreColor = s.pct >= 75 ? '#3d6452' : s.pct >= 50 ? '#c59a3c' : '#b94a2c';
+    var card = document.createElement('div');
+    card.className = 'as-card';
+    card.innerHTML = '<div class="as-icon">' + meta.icon + '</div><div class="as-name">' + meta.name + '</div><div class="as-score" style="color:' + scoreColor + '">' + s.pct + '</div><div class="as-grade ' + gradeClass + '">' + gradeText + '</div>';
+    asg.appendChild(card);
+  });
+
+  // find lowest area
+  var lowestArea = AREAS[0], lowestPct = 100;
+  AREAS.forEach(function(a) { if (scores[a].pct < lowestPct) { lowestPct = scores[a].pct; lowestArea = a; } });
+
+  // bottleneck card
+  var bn = getBnContent(lowestArea, scores);
+  document.getElementById('bottleneckCard').innerHTML = '<div class="win-card" style="border-left-color:var(--rust);"><h4>&#128680; Your Biggest Gap: ' + AREA_META[lowestArea].name + ' — ' + scores[lowestArea].pct + '%</h4><p>' + bn.detail + '</p><span class="win-badge" style="background:#fdecea;color:#b94a2c;">' + bn.type + '</span></div>';
+
+  // quick wins
+  var wins = getQuickWins(scores);
+  var qw = document.getElementById('quickWins');
+  qw.innerHTML = '';
+  wins.forEach(function(w) {
+    var card = document.createElement('div');
+    card.className = 'win-card';
+    card.innerHTML = '<h4>' + w.icon + ' ' + w.title + '</h4><p>' + w.body + '</p><span class="win-badge">' + w.effort + '</span>';
+    qw.appendChild(card);
+  });
+
+  // show
+  document.getElementById('questionsWrap').style.display = 'none';
+  document.getElementById('resultsWrap').classList.add('show');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function getBnContent(area, scores) {
+  var map = {
+    lead:{detail:'Lead generation is your highest-leverage area and your biggest current gap. The problem is almost never a lack of opportunity — it\'s a lack of consistent system. A weekly prospecting routine and a simple CRM nurture sequence will change your pipeline within 60 days.', type:'Process Fix → Then consider CRM investment'},
+    ops:{detail:'Transaction operations are where time disappears after you already have a client. Missed deadlines, reactive communication, and no documented process mean every deal costs more time than it should. A TC or a transaction management platform resolves most of this.', type:'Software + possible TC hire'},
+    admin:{detail:'Administrative drag is quietly capping your income. Every hour spent on low-value tasks is an hour not spent generating business. Your first priority is identifying the top 3 tasks consuming the most time — then delegating, automating, or eliminating them.', type:'Process redesign + possible VA hire'},
+    tech:{detail:'Your tech stack isn\'t working hard enough for you. Either you\'re paying for tools you don\'t use, using tools that only handle compliance (not business management), or missing a CRM altogether. A one-hour tech audit this week will surface immediate wins.', type:'Software audit + possible tool swap'},
+    fin:{detail:'Not knowing your financial numbers makes every business decision a guess. You can\'t confidently decide when to hire, what to spend on marketing, or whether your brokerage arrangement makes sense without knowing your overhead, net per deal, and break-even count.', type:'Process: 2-hour financial clarity session'},
+  };
+  return map[area];
+}
+
+function getQuickWins(scores) {
+  var wins = [];
+
+  // Always offer one universal win
+  wins.push({
+    icon:'&#9201;',
+    title:'Block Your Prospecting Time — This Week',
+    body:'Open your calendar right now and block 90 minutes every morning (or whatever your schedule allows) specifically for prospecting and lead follow-up. Label it, treat it as a non-negotiable client appointment, and don\'t let admin work bleed into it. Agents who protect this block generate 30-50% more leads within 90 days.',
+    effort:'⏱ 10 minutes to implement'
+  });
+
+  // Score-based wins
+  if (scores.lead.pct < 60) {
+    wins.push({
+      icon:'&#128222;',
+      title:'Write Down 10 Names in Your Database You Haven\'t Talked to in 90 Days',
+      body:'Open your phone, your email, or wherever your contacts live and write down 10 people you haven\'t reached out to in 3+ months. Call or text 2 of them today — not to ask for business, just to check in. This is the fastest way to generate a referral from a cold database. One conversation often turns into a transaction within 30 days.',
+      effort:'⏱ 20 minutes this week'
+    });
+  }
+
+  if (scores.ops.pct < 60) {
+    wins.push({
+      icon:'&#128203;',
+      title:'Write Down Your Transaction Checklist — Even if It\'s Rough',
+      body:'For your next transaction, document every step you take from accepted offer to close — even in a basic Google Doc or text file. Don\'t overthink the format. The act of writing it down for the first time is the win. This single document becomes the foundation for delegating to a TC, training an assistant, or identifying where deals fall apart.',
+      effort:'⏱ 45 minutes, one time'
+    });
+  }
+
+  if (scores.fin.pct < 60) {
+    wins.push({
+      icon:'&#128200;',
+      title:'Calculate Your Real Monthly Overhead in the Next 48 Hours',
+      body:'Open your bank statements and credit card statements for the last 3 months. Add up every recurring business expense: MLS fees, brokerage costs, software subscriptions, marketing, E&O, professional memberships. Divide by 3 for a monthly average. This one number — your true monthly overhead — should drive every financial decision you make.',
+      effort:'⏱ 30 minutes this week'
+    });
+  }
+
+  if (scores.tech.pct < 60) {
+    wins.push({
+      icon:'&#128187;',
+      title:'Cancel One Subscription You\'re Not Using — Today',
+      body:'Log into your bank account or credit card app, search for recurring charges, and identify at least one software subscription you haven\'t opened in 60 days. Cancel it. Most agents find $50–$200/month in zombie subscriptions on their first audit. That money either stays in your pocket or funds a tool you\'ll actually use.',
+      effort:'⏱ 15 minutes today'
+    });
+  }
+
+  return wins.slice(0, 3);
+}
+
+function resetAll() {
+  answers = {};
+  AREAS.forEach(function(a) { renderArea(a); });
+  document.getElementById('questionsWrap').style.display = '';
+  document.getElementById('resultsWrap').classList.remove('show');
+  updateProgress();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// INIT
+AREAS.forEach(function(a) { renderArea(a); });
+updateProgress();
+</script>
+</body>
+</html>
